@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Station 1 Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        async function fetchData() {
+            try {
+                let res = await fetch("/api/station1/data");
+                let data = await res.json();
+
+                if (data.status === "ok" && data.bits) {
+                    // Assuming data.bits[0] corresponds to M516
+                    for (let i = 0; i <= 14; i++) {  // 15 bits from M516 to M530
+                        let bitNum = 516 + i;
+                        let bitElem = document.getElementById("M" + bitNum);
+
+                        console.log(`Updating M${bitNum} with bit value:`, data.bits[i]);
+
+                        if (bitElem) {
+                            bitElem.className = data.bits[i] === 1
+                                ? "bit-indicator green"
+                                : "bit-indicator red";
+                        } else {
+                            console.warn(`Element M${bitNum} not found`);
+                        }
+                    }
+                } else {
+                    console.warn("Data status not OK or bits missing", data);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        async function sendAction(action) {
+            try {
+                await fetch("/api/station1/control", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({action: action})
+                });
+            } catch (error) {
+                console.error("Error sending action:", error);
+            }
+        }
+
+        setInterval(fetchData, 1000);
+        window.onload = fetchData;  // Fetch immediately on load
+    </script>
+</head>
+<body>
+    <h1>⚙️ STATION-01 OUTPUT STATUS</h1>
+
+    <div class="bit-indicator-grid">
+        <div class="column"> 
+            <div class="bit_pair">
+                <p>Input_01(M516)</p>
+                <button onclick="sendAction('button1')"> button1(1)</button> 
+                <div class="bit-indicator red" id="M516"></div>  
+            </div>
+            <div class="bit_pair"> 
+                <p>Input_01(M517)</p>
+                <button onclick="sendAction('button2')"> button1(2)</button>
+                <div class="bit-indicator red" id="M517"></div>
+            </div>
+            <div class="bit_pair">
+                <p>Input_01(M518)</p>
+                <button onclick="sendAction('button3')"> button1(3)</button>
+                <div class="bit-indicator red" id="M518"></div>
+            </div>
+            <div class="bit_pair">
+                <p>Input_01(M519)</p>
+                <button onclick="sendAction('button4')"> button4(4)</button>
+                <div class="bit-indicator red" id="M519"></div>
+            </div>
+            <div class="bit_pair">
+                <p>Input_01(M520)</p>
+                <button onclick="sendAction('button5')"> button5(5)</button>
+                <div class="bit-indicator red" id="M520"></div>
+            </div>
+            <div class="bit_pair">
+                <p>Input_01(M521)</p>
+                <button onclick="sendAction('button6')"> button6(6)</button>
+                <div class="bit-indicator red" id="M521"></div>
+            </div>
+            <div class="bit_pair">
+                <p>Input_01(M522)</p>
+                <button onclick="sendAction('button7')"> button7(7)</button>
+                <div class="bit-indicator red" id="M522"></div>
+            </div>
+            <div class="bit_pair">  
+                <p>Input_01(M523)</p>
+                <button onclick="sendAction('button8')">button8(8)</button>
+                <div class="bit-indicator red" id="M523"></div>
+            </div>
+        </div><br><br><br><br>
+
+        <div class="column"> 
+            <div class="bit_pair">
+                 <p>Input_01(M524)</p>
+                 <button onclick="sendAction('button9')">button9</button>
+                <div class="bit-indicator red" id="M524"></div>  
+            </div>
+            <div class="bit_pair">
+                <p>Input_01(M525)</p>
+                <button onclick="sendAction('button10')">button10</button>
+                <div class="bit-indicator red" id="M525"></div>
+            </div> 
+
+            <div class="bit_pair">
+                <p>Input_01(M526)</p>
+                <button onclick="sendAction('button11')">button11</button>
+                <div class="bit-indicator red" id="M526"></div>
+            </div> 
+
+            <div class ="bit_pair">
+                <p>Input_01(M527)</p>
+                <button onclick="sendAction('button12')">button12</button>
+                <div class="bit-indicator red" id="M527"></div>
+            </div> 
+              
+            <div class="bit_pair"> 
+                <p>Input_01(M528)</p>
+                <button onclick="sendAction('button13')">button13</button>
+                <div class="bit-indicator red" id="M528"></div>
+            </div>
+              
+            <div class="bit_pair">
+                <p>Input_01(M529)</p>
+                <button onclick="sendAction('button14')">button14</button>
+                <div class="bit-indicator red" id="M529"></div>
+            </div> 
+            <div class="bit_pair"> 
+                <p>Input_01(M530)</p>
+                <button onclick="sendAction('button15')">button15</button>
+                <div class="bit-indicator red" id="M530"></div>
+            </div>  
+        </div>    
+    </div>
+    
+    <a class="back-link" href="/">⬅️ Back to Home</a>
+    
+</body>
+</html>

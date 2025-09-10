@@ -1,0 +1,209 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #333;
+    margin-top: 20px;
+    margin-left: -100px;
+}
+
+.menu a {
+    display: inline-block;
+    margin: 15px;
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.menu a:hover {
+    background: #0056b3;
+}
+
+.data-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.data-box {
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    width: 150px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+.data-box:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.data-box p {
+    margin: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.controls {
+    margin-top: 30px;
+}
+
+.controls button {
+    margin: 10px;
+    padding: 12px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.controls button:hover {
+    background: #218838;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 30px;
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.back-link:hover {
+    color: #0056b3;
+}
+
+
+/* Wrapper for menu and image */
+
+.home-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+    margin-left: -400px;
+    /* Makes it responsive on small screens */
+}
+
+
+/* Make menu stack vertically */
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 30px;
+    margin-top: 5px;
+}
+
+
+/* Resize and style the image */
+
+.image-box img {
+    max-width: 500px;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+}
+
+.bit-indicator {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 2px solid #444;
+}
+
+.bit-indicator.red {
+    background-color: red;
+}
+
+.bit-indicator.green {
+    background-color: green;
+}
+
+.bit-indicator-grid {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin-top: 40px;
+    margin-left: -00px;
+    flex-wrap: wrap;
+}
+
+
+/* Column layout */
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: start;
+}
+
+.bit_pair {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bit_pair_p {
+    margin: 0%;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+/* PAGE SWITCH..*/
+
+.page-switch {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 280px;
+}
+
+.page-switchinput {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: 50px;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.page-switch button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-switch button:hover {
+    background-color: #0056b3;
+}

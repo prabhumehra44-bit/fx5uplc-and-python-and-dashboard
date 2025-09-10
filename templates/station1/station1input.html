@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Station 1 Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        async function fetchData() {
+            try {
+                let res = await fetch("/api/station1/data");
+                let data = await res.json();
+
+                if (data.status === "ok" && data.bits1) {
+                    for (let i = 0; i <= 14; i++) {  // M501 to M515
+                        let bitNum = 501 + i;
+                        let bitElem = document.getElementById("M" + bitNum);
+
+                        console.log(`Updating M${bitNum} with bit value:`, data.bits1[i]);
+
+                        if (bitElem) {
+                            bitElem.className = data.bits1[i] === 1
+                                ? "bit-indicator green"
+                                : "bit-indicator red";
+                        } else {
+                            console.warn(`Element M${bitNum} not found`);
+                        }
+                    }
+                } else {
+                    console.warn("Data status not OK or bits missing", data);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        setInterval(fetchData, 1000);
+        window.onload = fetchData;
+    </script>
+</head>
+<body>
+    <h1>INPUT STATUS</h1>
+
+    <div class="bit-indicator-grid">
+        <div class="column"> 
+            {% for i in range(501, 509) %}
+            <div class="bit_pair">
+                <p>Input_01(M{{ i }})</p>
+                <div class="bit-indicator red" id="M{{ i }}"></div>  
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="column"> 
+            {% for i in range(509, 516) %}
+            <div class="bit_pair">
+                <p>Input_01(M{{ i }})</p>
+                <div class="bit-indicator red" id="M{{ i }}"></div>  
+            </div>
+            {% endfor %}
+        </div>    
+    </div>
+
+    <!-- Adjusted Top Margin -->
+
+
+    <div class="page-switchinput" style="margin-top: 5px;" >
+        <button onclick="location.href='/'">⬅️ Back to Home</button>
+        <button onclick="location.href='/station1output'">➡️ Go to Output</button>
+        <button onclick="location.href='/servo1'">➡️ Go to Servo</button>
+    </div>
+
+</body>
+</html>

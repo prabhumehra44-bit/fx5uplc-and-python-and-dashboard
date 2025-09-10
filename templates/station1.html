@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Station 1 Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        async function fetchData() {
+            let res = await fetch("/api/station1/data");
+            let data = await res.json();
+            if (data.status === "ok") {
+                document.getElementById("d0").innerText = data.D0;
+                document.getElementById("d1").innerText = data.D1;
+                document.getElementById("d2").innerText = data.D2;
+
+                // Update M501-M515 bit indicators
+                if (data.bits) {
+                    for (let i = 0; i < 15; i++) {
+                        let bitElem = document.getElementById("m" + (501 + i));
+                        if (bitElem) {
+                            bitElem.className = data.bits[i] === 1
+                                ? "bit-indicator green"
+                                : "bit-indicator red";
+                        }
+                    }
+                }
+            }
+        }
+
+        async function sendAction(action) {
+            await fetch("/api/station1/control", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({action: action})
+            });
+        }
+
+        setInterval(fetchData, 1000);
+    </script>
+</head>
+<body>
+    <h1>STATION-01 MAIN MENU</h1>
+
+    <div class="data-container">
+        <div class="data-box">
+            <p>D0</p>
+            <p id="d0">--</p>
+        </div>
+        <div class="data-box">
+            <p>D1</p>
+            <p id="d1">--</p>
+        </div>
+        <div class="data-box">
+            <p>D2</p>
+            <p id="d2">--</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="sendAction('start')">Start</button>
+        <button onclick="sendAction('stop')">Stop</button>
+        <button onclick="sendAction('reset')">Reset</button>
+        <button onclick="sendAction('servo_on')">Servo ON</button>
+    </div>
+
+    <!-- M501 to M515 Indicators -->
+    <div class="page-switch">
+        <button onclick="location.href='/'">⬅️ Back to Home</button>
+        <button onclick="location.href='/station1input'">➡️ Go to Input</button>
+        <button onclick="location.href='/servo1'">➡️ Go to Servo</button>
+    </div>
+   
+
+
+</body>
+
+
+
+</html>

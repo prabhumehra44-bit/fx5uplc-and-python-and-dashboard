@@ -1,0 +1,358 @@
+<!-- templates/servo1.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Servo1 Control</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f4f7f8;
+        color: #333;
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1rem;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        border-radius: 8px;
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #222;
+    }
+
+    form {
+        background: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    form > div {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    input[type=number] {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type=number]:focus {
+        border-color: #007BFF;
+        outline: none;
+    }
+
+    button {
+        margin-top: 1rem;
+        width: 100%;
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border: none;
+        background-color: #007BFF;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #readSection {
+        margin-top: 2rem;
+        background: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .read-labels {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 1rem;
+    }
+
+    .read-label {
+        flex: 1 1 120px;
+        background: #e7f0ff;
+        padding: 10px 15px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: inset 0 0 5px rgba(0,123,255,0.15);
+    }
+
+    .read-label strong {
+        display: block;
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+        color: #0056b3;
+    }
+
+    #radialContainer {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 15px;
+    }
+
+    .radial-progress {
+        width: 110px;
+        height: 110px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .radial-progress svg {
+        transform: rotate(-90deg);
+        width: 100%;
+        height: 100%;
+    }
+
+    .radial-progress circle {
+        fill: none;
+        stroke-width: 12;
+        stroke-linecap: round;
+    }
+
+    .radial-progress .bg {
+        stroke: #eee;
+    }
+
+    .radial-progress .progress {
+        stroke: #007bff;
+        stroke-dasharray: 339.292; /* 2 * PI * 54 (radius) */
+        stroke-dashoffset: 339.292;
+        transition: stroke-dashoffset 0.6s ease;
+    }
+
+    .radial-progress .label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: 700;
+        font-size: 1rem;
+        color: #007bff;
+        user-select: none;
+    }
+
+</style>
+<script>
+    function setRadialProgress(elem, value, max=100) {
+        if (!elem) return;
+        const circle = elem.querySelector('.progress');
+        const radius = 54; // circle radius
+        const circumference = 2 * Math.PI * radius;
+        const percent = Math.min(value, max) / max;
+        const offset = circumference * (1 - percent);
+        circle.style.strokeDashoffset = offset;
+        elem.querySelector('.label').textContent = value;
+    }
+
+    async function readRegisters() {
+        try {
+            const res = await fetch('/api/servo1/read');
+            if (!res.ok) throw new Error('Network response was not ok');
+
+            const data = await res.json();
+            console.log('API Response:', data);
+
+            if (data.status === "ok") {
+                const vals = data.values;
+                console.log('Values:', vals);
+
+                if (!Array.isArray(vals) || vals.length < 20) {
+                    alert("Unexpected data length received");
+                    return;
+                }
+
+                // Update text labels for D71-D75
+                document.getElementById('torqueVal').textContent = vals[0];
+                document.getElementById('currentVal').textContent = vals[1];
+                document.getElementById('tempVal').textContent = vals[2];
+                document.getElementById('voltageVal').textContent = vals[3];
+                document.getElementById('alarmVal').textContent = vals[4];
+
+                // Update radial progress for D71-D75
+                setRadialProgress(document.getElementById('radialD71'), vals[0]);
+                setRadialProgress(document.getElementById('radialD72'), vals[1]);
+                setRadialProgress(document.getElementById('radialD73'), vals[2], 150); // temp max 150
+                setRadialProgress(document.getElementById('radialD74'), vals[3], 300); // voltage max 300
+                setRadialProgress(document.getElementById('radialD75'), vals[4], 10);  // alarm max 10
+
+                // Combine position (D76 + D77)
+                const position = (vals[5] << 16) + vals[6];
+                document.getElementById('positionVal').textContent = position;
+
+                // Combine speed (D78 + D79)
+                const speed = (vals[7] << 16) + vals[8];
+                document.getElementById('speedVal').textContent = speed;
+
+                // Radial progress for D80 to D90
+                for(let i = 9; i <= 19; i++) {
+                    const value = vals[i];
+                    const elem = document.getElementById(`radialD${80 + (i - 9)}`);
+                    setRadialProgress(elem, value);
+                }
+            } else {
+                alert("Failed to read registers");
+            }
+        } catch (error) {
+            alert("Error reading registers: " + error.message);
+            console.error(error);
+        }
+    }
+
+    async function writeRegisters() {
+        const inputs = document.querySelectorAll(".write-input");
+        const values = Array.from(inputs).map(i => parseInt(i.value) || 0);
+
+        if (values.length !== 20) {
+            alert("You must enter 20 values");
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/servo1/write', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ values })
+            });
+
+            const data = await res.json();
+            if (data.status === "ok") {
+                alert("Successfully written");
+            } else {
+                alert("Write failed");
+            }
+        } catch (error) {
+            alert("Error writing registers: " + error.message);
+            console.error(error);
+        }
+    }
+
+    // Auto-load values on page load
+    window.addEventListener('DOMContentLoaded', readRegisters);
+</script>
+</head>
+<body>
+    <h1>Servo1 Control</h1>
+
+    <h2>Write to D51–D70</h2>
+    <form onsubmit="event.preventDefault(); writeRegisters();">
+        <div>
+            {% for i in range(51, 71) %}
+            <div>
+                <label>D{{ i }}</label>
+                <input class="write-input" type="number" />
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit">Write Registers</button>
+    </form>
+
+    <h2 style="margin-top: 2rem;">Read from D71–D90</h2>
+
+    <div id="readSection">
+
+        <div class="read-labels">
+            <div class="read-label">
+                <strong>Torque (D71)</strong>
+                <div class="radial-progress" id="radialD71">
+                    <svg viewBox="0 0 120 120" >
+                        <circle class="bg" cx="60" cy="60" r="54" />
+                        <circle class="progress" cx="60" cy="60" r="54" />
+                    </svg>
+                    <div class="label">-</div>
+                </div>
+                <span id="torqueVal" style="display:block; margin-top: 5px; font-weight: bold; color: #0056b3;">-</span>
+            </div>
+            <div class="read-label">
+                <strong>Current (D72)</strong>
+                <div class="radial-progress" id="radialD72">
+                    <svg viewBox="0 0 120 120" >
+                        <circle class="bg" cx="60" cy="60" r="54" />
+                        <circle class="progress" cx="60" cy="60" r="54" />
+                    </svg>
+                    <div class="label">-</div>
+                </div>
+                <span id="currentVal" style="display:block; margin-top: 5px; font-weight: bold; color: #0056b3;">-</span>
+            </div>
+            <div class="read-label">
+                <strong>Temp (D73)</strong>
+                <div class="radial-progress" id="radialD73">
+                    <svg viewBox="0 0 120 120" >
+                        <circle class="bg" cx="60" cy="60" r="54" />
+                        <circle class="progress" cx="60" cy="60" r="54" />
+                    </svg>
+                    <div class="label">-</div>
+                </div>
+                <span id="tempVal" style="display:block; margin-top: 5px; font-weight: bold; color: #0056b3;">-</span>
+            </div>
+            <div class="read-label">
+                <strong>Voltage (D74)</strong>
+                <div class="radial-progress" id="radialD74">
+                    <svg viewBox="0 0 120 120" >
+                        <circle class="bg" cx="60" cy="60" r="54" />
+                        <circle class="progress" cx="60" cy="60" r="54" />
+                    </svg>
+                    <div class="label">-</div>
+                </div>
+                <span id="voltageVal" style="display:block; margin-top: 5px; font-weight: bold; color: #0056b3;">-</span>
+            </div>
+            <div class="read-label">
+                <strong>Alarm Code (D75)</strong>
+                <div class="radial-progress" id="radialD75">
+                    <svg viewBox="0 0 120 120" >
+                        <circle class="bg" cx="60" cy="60" r="54" />
+                        <circle class="progress" cx="60" cy="60" r="54" />
+                    </svg>
+                    <div class="label">-</div>
+                </div>
+                <span id="alarmVal" style="display:block; margin-top: 5px; font-weight: bold; color: #0056b3;">-</span>
+            </div>
+            <div class="read-label">
+                <strong>Position (D76+D77)</strong>
+                <span id="positionVal" style="font-weight: bold; color: #0056b3;">-</span>
+            </div>
+            <div class="read-label">
+                <strong>Speed (D78+D79)</strong>
+                <span id="speedVal" style="font-weight: bold; color: #0056b3;">-</span>
+            </div>
+        </div>
+
+        <div id="radialContainer">
+            {% for i in range(80, 91) %}
+            <div class="radial-progress" id="radialD{{ i }}">
+                <svg viewBox="0 0 120 120" >
+                    <circle class="bg" cx="60" cy="60" r="54" />
+                    <circle class="progress" cx="60" cy="60" r="54" />
+                </svg>
+                <div class="label">-</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button onclick="readRegisters()">Read Registers</button>
+    </div>
+    <a class="back-link" href="/">⬅️ Back to Home</a>
+</body>
+</html>

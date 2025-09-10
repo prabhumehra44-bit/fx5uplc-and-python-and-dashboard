@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Station 3 Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        async function fetchData() {
+            let res = await fetch("/api/station3/data");
+            let data = await res.json();
+            if(data.status === "ok") {
+                document.getElementById("d20").innerText = data.D20;
+                document.getElementById("d21").innerText = data.D21;
+                document.getElementById("d22").innerText = data.D22;
+            }
+        }
+
+        async function sendAction(action) {
+            await fetch("/api/station3/control", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({action: action})
+            });
+        }
+
+        setInterval(fetchData, 1000);
+    </script>
+</head>
+<body>
+    <h1>⚙️ Station 3 Dashboard</h1>
+
+    <div class="data-container">
+        <div class="data-box">
+            <p>D20</p>
+            <p id="d20">--</p>
+        </div>
+        <div class="data-box">
+            <p>D21</p>
+            <p id="d21">--</p>
+        </div>
+        <div class="data-box">
+            <p>D22</p>
+            <p id="d22">--</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="sendAction('start')">Start</button>
+        <button onclick="sendAction('stop')">Stop</button>
+        <button onclick="sendAction('reset')">Reset</button>
+        <button onclick="sendAction('servo_on')">Servo ON</button>
+    </div>
+
+    <a class="back-link" href="/">⬅️ Back to Home</a>
+</body>
+</html>
